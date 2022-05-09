@@ -6,7 +6,7 @@ print ("Socket successfully created")
 
 port = 5432
 
-s.bind(('', port))        
+s.bind(('127.0.0.1', port))        
 print ("socket binded to %s" %(port))
  
 s.listen(5)    
@@ -17,16 +17,16 @@ site_desc = "Daddy Radio is a radio station that broadcasts from the Ahmedabad U
 stations = [
 	{
 		"number": 1,
-		"name": "Party Songs",
-		"multicast_ip": "230.192.12.1",
+		"name": "New",
+		"multicast_ip": "239.192.12.1",
 		"multicast_port": 6253,
 		"multicast_infoport": 6235,
 		"bitrate": 128,
 	},
 	{
 		"number": 2,
-		"name": "Old Songs",
-		"multicast_ip": "230.192.12.2",
+		"name": "Old",
+		"multicast_ip": "239.192.12.2",
 		"multicast_port": 6253,
 		"multicast_infoport": 6235,
 		"bitrate": 128,

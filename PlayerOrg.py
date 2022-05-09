@@ -6,8 +6,7 @@ import socket
 import struct
 from threading import Thread
 from pathlib import Path
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Label
-from PIL import Image, ImageTk
+from tk import Tk, Canvas, Entry, Text, Button, PhotoImage, Label, TkVersion
 
 from utils import get_site_info, get_song_info, get_station_info, radio_stn_info
 
@@ -29,7 +28,7 @@ def udpStream(CHUNK, IP, PORT):
 
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 	sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	sock.bind(('', PORT))
+	sock.bind((IP, PORT))
 	mreq = struct.pack("4sl", socket.inet_aton(IP), socket.INADDR_ANY)
 
 	sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
@@ -48,7 +47,7 @@ def udpInfoStream(IP, PORT):
 
 	udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 	udp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	udp.bind(('', PORT))
+	udp.bind((IP, PORT))
 	mreq = struct.pack("4sl", socket.inet_aton(IP), socket.INADDR_ANY)
 
 	udp.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
@@ -115,45 +114,40 @@ def StartStation(event):
 	Ts.start()
 	Tis.start()
 	Tp.start()
-	
+
 def AddStationsToDisplay(canvas):
 	canvas.delete("radio")
 	for i in range(len(stations)):
 		canvas.create_rectangle(
-			120.0+i*230,
-			230.0,
-			320.0+i*230,
-			420.0,
-			fill="#69451f",
+			76.0+i*256.0,
+			300.0,
+			283.0+i*256.0,
+			498.0,
+			fill="#18672A",
 			outline="",
-			tags=["radio"+str(i+1), "radio"]
-		)
+			tags=["radio"+str(i+1), "radio"])
 		canvas.tag_bind("radio"+str(i+1), "<Button-1>", StartStation)
 		canvas.create_text(
-			215.0+i*230,
-			280.0,
+			170.0+i*256.0,
+			310.0,
 			anchor="nw",
 			text=stations[i]["number"],
 			fill="#FFFFFF",
-			font=("Comic Sans MS", 30 * -1),
-			justify="center"
+			font=("OpenSansRoman SemiBold", 30 * -1)
 		)
 		canvas.create_text(
-				195.0+i*230,
-				315.0,
-				anchor="nw",
-				text=stations[i]["name"],
-				fill="#FFFFFF",
-				font=("Comic Sans MS", 30 * -1),
-				justify="center"
+			126.0+i*256.0,
+			358.0,
+			anchor="nw",
+			text=stations[i]["name"],
+			fill="#FFFFFF",
+			font=("OpenSansRoman SemiBold", 30 * -1)
 		)
-	
+
 def LoadNew(canvas):
-	global siteIP
-	siteIP = inputtxt.get("1.0", "end-1c")
-	print(siteIP)
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		global siteIP
 		s.connect((siteIP, 5432))
 		s.send(radio_stn_info())
 		data = s.recv(2048)
@@ -163,10 +157,10 @@ def LoadNew(canvas):
 		s.close()
 
 	except socket.error as err:
-		print(err)
+		print("Error")
 
 def StopAll(event):
-	global stop_playing, song_name, next_song_name, time_rem
+	global stop_playing
 	song_name = "Not Playing"
 	next_song_name = "Not Playing"
 	time_rem = "00:00"
@@ -179,24 +173,20 @@ def clock(canvas, sn, ns, tr):
 	canvas.itemconfig(tr, text=time_rem)
 	canvas.after(1000, lambda: clock(canvas, sn, ns, tr))
 
-# def siteIPFunc():
-# 		global siteIP
-# 		siteIP = inputtxt.get("1.0", "end-1c")
-# 		print(siteIP)
-
 if __name__ == "__main__":
 	window = Tk()
 	window.title("Radio wale Babu")
-	window.geometry("1366x750")
-	window.configure(bg = "#162f4a")
-	# siteIP = sys.argv[1]
+	window.geometry("1321x944")
+	window.configure(bg = "#262626")
+
+	siteIP = sys.argv[1]
 
 
 	canvas = Canvas(
 		window,
-		bg = "#162f4a",
-		height = 750,
-		width = 1366,
+		bg = "#262626",
+		height = 944,
+		width = 1321,
 		bd = 0,
 		highlightthickness = 0,
 		relief = "ridge"
@@ -204,10 +194,10 @@ if __name__ == "__main__":
 
 	canvas.place(x = 0, y = 0)
 
-	image_image_1 = PhotoImage(file=relative_to_assets("enter.png"))
+	image_image_1 = PhotoImage(file=relative_to_assets("image_1.png"))
 	image_1 = canvas.create_image(
-		1040.0,
-		136.0,
+		1066.0,
+		89.0,
 		image=image_image_1,
 		tags=["Refresh"]
 	)
@@ -217,117 +207,77 @@ if __name__ == "__main__":
 	AddStationsToDisplay(canvas)
 
 	canvas.create_text(
-		550.0,
-		30.0,
+		405.0,
+		33.0,
 		anchor="nw",
 		text="Radio wale Babu",
 		fill="#FFFFFF",
-		font=("Comic Sans MS", 50 * -1, "bold"),
-		justify="center"
+		font=("OpenSansRoman Bold", 76 * -1)
 	)
-	
-	canvas.create_text(
-		70.0,
-		150.0,
-		anchor="nw",
-		text="Stations",
-		fill="#FFFFFF",
-		font=("Comic Sans MS", 36 * -1),
-		justify="center"
-	)
-		# return siteIP
-
-	# e1 = Entry(window, lambda event: siteIPFunc(canvas))
-	# e1.grid(row=0, column=1)
-
-	inputtxt = tk.Text(window, height = 1, width = 30)  
-	inputtxt.place(x = 580, y = 120)
-	inputtxt.insert(tk.END, "Enter IP Address")
-	inputtxt.configure(bg = "#262626", fg = "#FFFFFF", font=("Comic Sans MS", 20 * -1))
-	inputtxt.bind("<Button-1>", lambda event: inputtxt.delete("1.0", tk.END))
-
-	# button = tk.Button(window, text="Enter", command = siteIPFunc)
-	# button.place(x = 500, y = 130)
-	# button.configure(bg = "#262626", fg = "#FFFFFF", font=("Comic Sans MS", 15 * -1))
-
 
 	canvas.create_rectangle(
-		389.0,
-		620.0,
+		305.0,
+		708.0,
 		981.0,
-		700.0,
-		fill="#B3d6f9",
+		822.0,
+		fill="#FFFFFF",
 		outline="")
 
-	img = Image.open(relative_to_assets("image_2.png"))
-	resize_img = img.resize((30,30), Image.ANTIALIAS)
-	photo = ImageTk.PhotoImage(resize_img)
-	
+	image_image_2 = PhotoImage(
+		file=relative_to_assets("image_2.png"))
 	image_2 = canvas.create_image(
-		434.0,
-		660.0,
-		image=photo,
+		358.0,
+		765.0,
+		image=image_image_2,
 		tags=["stopPlaying"]
 	)
 	canvas.tag_bind("stopPlaying", "<Button-1>", StopAll)
 
 	sn = canvas.create_text(
-		470.0,
-		648.0,
+		424.0,
+		726.0,
 		anchor="nw",
 		text=song_name,
 		fill="#000000",
-		font=("Comic Sans MS", 20 * -1)
+		font=("OpenSansRoman SemiBold", 20 * -1)
 	)
 
 	tr = canvas.create_text(
-		470.0,
-		675.0,
+		542.0,
+		767.0,
 		anchor="nw",
 		text=time_rem,
 		fill="#000000",
-		font=("Comic Sans MS", 12 * -1)
+		font=("OpenSansRoman SemiBold", 12 * -1)
 	)
 
 	canvas.create_rectangle(
 		685.0,
-		620.0,
+		708.0,
 		981.0,
-		700.0,
-		fill="#69451f",
+		822.0,
+		fill="#18672A",
 		outline="")
 
-	img_3 = Image.open(relative_to_assets("image_3.png"))
-	resize_img_3 = img_3.resize((30,30), Image.ANTIALIAS)
-	image_image_3 = ImageTk.PhotoImage(resize_img_3)
-
+	image_image_3 = PhotoImage(
+		file=relative_to_assets("image_3.png"))
 	image_3 = canvas.create_image(
-		730.0,
-		660.0,
-		image=image_image_3,
+		721.4583129882812,
+		764.4583740234375,
+		image=image_image_3
 	)
 
 	ns = canvas.create_text(
-		760.0,
-		648.0,
+		745.0,
+		744.0,
 		anchor="nw",
 		text=next_song_name,
 		fill="#FFFFFF",
-		font=("Comic Sans MS", 20 * -1)
-	)
-
-	img_5 = Image.open(relative_to_assets("mello.png"))
-	resize_img_5 = img_5.resize((400,500))
-	image_image_5 = ImageTk.PhotoImage(resize_img_5)
-
-	image_5 = canvas.create_image(
-		985.0+150,
-		450.0,
-		image=image_image_5,
+		font=("OpenSansRoman SemiBold", 20 * -1)
 	)
 
 	clock(canvas, sn, ns, tr)
 	
-	window.resizable(True, True)
+	window.resizable(False, False)
 	window.mainloop()
 	stop_playing = True

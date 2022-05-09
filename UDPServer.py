@@ -38,7 +38,7 @@ def udpStream(CHUNK, IP):
 			sent += 1
 			time_rem = int(((total_f - (sent * CHUNK)) / rate_f))
 			data = wf.readframes(CHUNK)
-			time.sleep(CHUNK/bitrate)
+			time.sleep(0.5*CHUNK/bitrate)
 			if(stop_server):
 				break
 		
@@ -62,11 +62,15 @@ def udpInfoStream(IP):
 	global files
 	global time_rem
 
+	delim = '/'
+	if(sys.platform == 'win32'):
+		delim = '\\'
+
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 	sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, MULTICAST_TTL)
 
 	while True:
-		data = song_info(files[i].split('/')[-1].split('.')[0], files[(i+1)%len(files)].split('/')[-1].split('.')[0], time_rem)
+		data = song_info(files[i].split(delim)[-1].split('.')[0], files[(i+1)%len(files)].split(delim)[-1].split('.')[0], time_rem)
 		sock.sendto(data, (MCAST_GRP, MCAST_PORT))
 		time.sleep(1)
 		if(stop_server):
@@ -81,7 +85,7 @@ if __name__ == "__main__":
 		print("Usage: python3 UDPServer.py <MCAST IP> <Director Path>")
 
 	IP = str(sys.argv[1])
-	print(IP)
+	# print(IP)
 	dire = sys.argv[2]
 
 	for file in os.listdir(dire):
